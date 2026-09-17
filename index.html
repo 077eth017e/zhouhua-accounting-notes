@@ -79,11 +79,15 @@ hr { border: none; border-top: 1px dashed var(--line); margin: 30px 0; }
   padding: 6px 14px; border-radius: 999px; cursor: pointer; font-size: 13px;
 }
 .controls button:hover { border-color: var(--accent); color: var(--accent); }
-#backTop {
-  position: fixed; right: 20px; bottom: 28px; width: 44px; height: 44px; border-radius: 50%;
-  border: none; background: var(--accent); color: #fff; font-size: 20px; cursor: pointer;
-  box-shadow: 0 4px 14px rgba(0,0,0,.25); display: none; z-index: 60;
+#tocFab {
+  position: fixed; right: 20px; bottom: 28px; z-index: 70;
+  display: flex; align-items: center; gap: 6px;
+  border: none; background: var(--accent); color: #fff; font-size: 15px;
+  padding: 12px 18px; border-radius: 999px; cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0,0,0,.28);
+  -webkit-tap-highlight-color: transparent;
 }
+#tocFab:hover { opacity: .92; }
 .topbar { display: none; }
 .backdrop {
   position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 90;
@@ -127,7 +131,7 @@ footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line);
   pre { font-size: 12.5px; padding: 12px 14px; }
   blockquote { padding: 8px 14px; }
   ul, ol { padding-left: 22px; }
-  #backTop { right: 14px; bottom: 20px; width: 42px; height: 42px; }
+  #tocFab { right: 14px; bottom: calc(18px + env(safe-area-inset-bottom)); padding: 11px 16px; font-size: 14px; }
   /* 表格转卡片 */
   .table-wrap { overflow: visible; }
   table, tbody, tr, td { display: block; width: 100%; }
@@ -146,7 +150,7 @@ footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line);
   }
 }
 @media print {
-  nav.toc, .controls, #backTop, .topbar, .backdrop { display: none !important; }
+  nav.toc, .controls, #tocFab, .topbar, .backdrop { display: none !important; }
   body { background: #fff; color: #000; }
   main { padding: 0; }
 }
@@ -460,7 +464,7 @@ footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line);
     </article>
   </main>
 </div>
-<button id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+<button id="tocFab" aria-label="打开目录">☰ 目录</button>
 <script>
 (function () {
   // 表格：加滚动容器，并记录表头用于移动端卡片化
@@ -505,17 +509,14 @@ footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line);
     });
   }, { rootMargin: '-10% 0px -80% 0px' });
   headings.forEach(function (h) { observer.observe(h); });
-  // 返回顶部
-  window.addEventListener('scroll', function () {
-    document.getElementById('backTop').style.display = window.scrollY > 600 ? 'block' : 'none';
-  });
+  // 返回顶部按钮已改为目录按钮：见下方抽屉逻辑
   // 移动端抽屉目录
   var nav = document.getElementById('tocNav');
   var backdrop = document.getElementById('backdrop');
+  function openDrawer() { nav.classList.add('open'); backdrop.classList.add('show'); }
   function closeDrawer() { nav.classList.remove('open'); backdrop.classList.remove('show'); }
-  document.getElementById('menuBtn').addEventListener('click', function () {
-    nav.classList.add('open'); backdrop.classList.add('show');
-  });
+  document.getElementById('menuBtn').addEventListener('click', openDrawer);
+  document.getElementById('tocFab').addEventListener('click', openDrawer);
   backdrop.addEventListener('click', closeDrawer);
   toc.addEventListener('click', function (e) {
     if (e.target.tagName === 'A') closeDrawer();
